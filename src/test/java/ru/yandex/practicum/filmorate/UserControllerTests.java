@@ -60,7 +60,8 @@ public class UserControllerTests {
                 UserValidationException.class,
                 () -> userController.create(user));
 
-        assertEquals("Пользователь содержит невалидные данные", exception.getMessage());
+        assertEquals(String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей: %s", user),
+                exception.getMessage());
     }
 
     @Test
@@ -77,7 +78,8 @@ public class UserControllerTests {
                 UserValidationException.class,
                 () -> userController.create(user));
 
-        assertEquals("Пользователь содержит невалидные данные", exception.getMessage());
+        assertEquals(String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей: %s", user),
+                exception.getMessage());
     }
 
     @Test
@@ -94,7 +96,8 @@ public class UserControllerTests {
                 UserValidationException.class,
                 () -> userController.create(user));
 
-        assertEquals("Пользователь содержит невалидные данные", exception.getMessage());
+        assertEquals(String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей: %s", user),
+                exception.getMessage());
     }
 
     @Test
@@ -111,7 +114,8 @@ public class UserControllerTests {
                 UserValidationException.class,
                 () -> userController.create(user));
 
-        assertEquals("Пользователь содержит невалидные данные", exception.getMessage());
+        assertEquals(String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей: %s", user),
+                exception.getMessage());
     }
 
     @Test
@@ -128,7 +132,8 @@ public class UserControllerTests {
                 UserValidationException.class,
                 () -> userController.create(user));
 
-        assertEquals("Пользователь содержит невалидные данные", exception.getMessage());
+        assertEquals(String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей: %s", user),
+                exception.getMessage());
     }
 
     @Test

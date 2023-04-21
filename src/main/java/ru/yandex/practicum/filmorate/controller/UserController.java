@@ -28,7 +28,8 @@ public class UserController {
     public User create(@Valid @RequestBody User user) {
         if (!isUserValid(user)) {
             log.warn("Ошибка при добавлении пользователя, невалидные данные: {}", user);
-            throw new UserValidationException();
+            throw new UserValidationException(
+                    String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей: %s", user));
         }
         user.setId(id);
         users.put(id, user);
@@ -42,7 +43,8 @@ public class UserController {
     public User save(@Valid @RequestBody User user) {
         if (!isUserValid(user) || !users.containsKey(user.getId())) {
             log.warn("Ошибка при обновлении фильма, невалидные данные: {}", user);
-            throw new UserValidationException();
+            throw new UserValidationException(
+                    String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей:%s", user));
         }
         users.put(user.getId(), user);
         log.info("Данные пользователя {} (id={}) успешно обновлены", user.getLogin(), user.getId());
