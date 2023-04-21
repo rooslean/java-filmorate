@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
     private int id = 1;
@@ -24,22 +26,26 @@ public class UserController {
     @PostMapping
     public User create(@RequestBody User user) {
         if (!isUserValid(user)) {
+            log.warn("Ошибка при добавлении пользователя, невалидные данные: {}", user);
             throw new UserValidationException();
         }
         user.setId(id);
         users.put(id, user);
         id++;
-
+        log.info("Пользователь {} (id={}) успешно создан", user.getLogin(), user.getId());
+        log.debug("Данные пользователя: {}", user);
         return user;
     }
 
     @PutMapping
     public User save(@RequestBody User user) {
         if (!isUserValid(user) || !users.containsKey(user.getId())) {
+            log.warn("Ошибка при обновлении фильма, невалидные данные: {}", user);
             throw new UserValidationException();
         }
         users.put(user.getId(), user);
-
+        log.info("Данные пользователя {} (id={}) успешно обновлены", user.getLogin(), user.getId());
+        log.debug("Данные пользователя: {}", user);
         return user;
     }
 
