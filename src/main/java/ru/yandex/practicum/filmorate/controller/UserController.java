@@ -56,7 +56,7 @@ public class UserController {
     }
 
     private boolean isUserValid(User user) {
-        if (user.getName().isEmpty()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
         return !user.getEmail().isEmpty()
