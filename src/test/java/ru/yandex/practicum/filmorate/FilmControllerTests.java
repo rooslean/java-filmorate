@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTests {
 
-     FilmController filmController;
+    FilmController filmController;
 
     @BeforeEach
-     void makeFilmController() {
+    void makeFilmController() {
         filmController = new FilmController();
     }
 
@@ -46,16 +46,17 @@ public class FilmControllerTests {
 
         assertEquals(films, filmController.getAll());
     }
+
     @Test
     void shouldCreateNewFilm() {
         Film film = Film.builder()
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
-                "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
+                        "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
                 .releaseDate(LocalDate.of(2020, 2, 13))
                 .duration(113).build();
 
-        Film addedFilm  = filmController.create(film);
+        Film addedFilm = filmController.create(film);
         assertEquals(film, addedFilm);
     }
 
@@ -64,11 +65,11 @@ public class FilmControllerTests {
         Film film = Film.builder()
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
-                     "приторговывал наркотиками, а теперь придумал схему нелегального обогащения с использованием поместий " +
-                     "обедневшей английской аристократии и очень неплохо на этом разбогател. Другой пронырливый журналист " +
-                     "приходит к Рэю, правой руке американца, и предлагает тому купить киносценарий, в котором подробно " +
-                     "описаны преступления его босса при участии других представителей лондонского криминального мира — " +
-                     "партнёра-еврея, китайской диаспоры, чернокожих спортсменов и даже русского олигарха.")
+                        "приторговывал наркотиками, а теперь придумал схему нелегального обогащения с использованием поместий " +
+                        "обедневшей английской аристократии и очень неплохо на этом разбогател. Другой пронырливый журналист " +
+                        "приходит к Рэю, правой руке американца, и предлагает тому купить киносценарий, в котором подробно " +
+                        "описаны преступления его босса при участии других представителей лондонского криминального мира — " +
+                        "партнёра-еврея, китайской диаспоры, чернокожих спортсменов и даже русского олигарха.")
                 .releaseDate(LocalDate.of(2020, 2, 13))
                 .duration(113).build();
 
@@ -167,7 +168,7 @@ public class FilmControllerTests {
                 .duration(113).build();
 
 
-        assertEquals(film,  filmController.create(film));
+        assertEquals(film, filmController.create(film));
     }
 
     @Test
@@ -185,6 +186,7 @@ public class FilmControllerTests {
 
         assertEquals("Фильм содержит невалидные данные", exception.getMessage());
     }
+
     @Test
     void shouldThrowExceptionBecauseOfNegativeDuration() {
         Film film = Film.builder()

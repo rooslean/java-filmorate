@@ -113,6 +113,7 @@ public class UserControllerTests {
 
         assertEquals("Пользователь содержит невалидные данные", exception.getMessage());
     }
+
     @Test
     void shouldThrowExceptionIfBirthdayToday() {
         User user = User.builder()
@@ -141,6 +142,6 @@ public class UserControllerTests {
                 .build();
 
 
-        assertEquals(user,  userController.create(user));
+        assertEquals(user, userController.create(user));
     }
 }
