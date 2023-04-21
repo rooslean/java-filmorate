@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +25,7 @@ public class UserController {
     private int id = 1;
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         if (!isUserValid(user)) {
             log.warn("Ошибка при добавлении пользователя, невалидные данные: {}", user);
             throw new UserValidationException();
@@ -38,7 +39,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User save(@RequestBody User user) {
+    public User save(@Valid @RequestBody User user) {
         if (!isUserValid(user) || !users.containsKey(user.getId())) {
             log.warn("Ошибка при обновлении фильма, невалидные данные: {}", user);
             throw new UserValidationException();
