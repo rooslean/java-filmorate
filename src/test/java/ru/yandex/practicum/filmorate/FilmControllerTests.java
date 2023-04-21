@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.FilmValidationException;
@@ -14,17 +14,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilmControllerTests {
 
-    static FilmController filmController;
+     FilmController filmController;
 
-    @BeforeAll
-    static void makeFilmController() {
+    @BeforeEach
+     void makeFilmController() {
         filmController = new FilmController();
     }
 
     @Test
     void shouldReturnAllFilms() {
         Film filmOne = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
                         "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
@@ -32,7 +31,6 @@ public class FilmControllerTests {
                 .duration(113).build();
 
         Film filmTwo = Film.builder()
-                .id(2)
                 .name("Джанго освобождённый")
                 .description("Эксцентричный охотник за головами, также известный как «Дантист», " +
                         "промышляет отстрелом самых опасных преступников на Диком Западе.")
@@ -51,7 +49,6 @@ public class FilmControllerTests {
     @Test
     void shouldCreateNewFilm() {
         Film film = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
                 "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
@@ -65,7 +62,6 @@ public class FilmControllerTests {
     @Test
     void shouldThrowExceptionBecauseOfTooLargeDescription() {
         Film film = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
                      "приторговывал наркотиками, а теперь придумал схему нелегального обогащения с использованием поместий " +
@@ -86,7 +82,6 @@ public class FilmControllerTests {
     @Test
     void shouldThrowExceptionWhenDescriptionLengthIs200() {
         Film film = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет приторговывал наркотиками, " +
                         "а теперь придумал схему нелегального обогащения с использованием поместий обедневшей " +
@@ -104,7 +99,6 @@ public class FilmControllerTests {
     @Test
     void shouldCreateFilmWhenDescriptionLengthIs199() {
         Film film = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет приторговывал наркотиками, " +
                         "а теперь придумал схему нелегального обогащения с использованием поместий обедневшей " +
@@ -118,7 +112,6 @@ public class FilmControllerTests {
     @Test
     void shouldThrowExceptionBecauseOfEmptyName() {
         Film film = Film.builder()
-                .id(1)
                 .name("")
                 .description("Один ушлый американец ещё со студенческих лет " +
                         "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
@@ -135,7 +128,6 @@ public class FilmControllerTests {
     @Test
     void shouldThrowExceptionBecauseOfTooEarlyDate() {
         Film film = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
                         "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
@@ -152,7 +144,6 @@ public class FilmControllerTests {
     @Test
     void shouldThrowExceptionWhenDateEqualsMinDate() {
         Film film = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
                         "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
@@ -169,7 +160,6 @@ public class FilmControllerTests {
     @Test
     void shouldCreateFilmWhenDateEqualsMinDatePlusDay() {
         Film film = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
                         "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
@@ -183,7 +173,6 @@ public class FilmControllerTests {
     @Test
     void shouldThrowExceptionBecauseOfZeroDuration() {
         Film film = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
                         "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
@@ -199,7 +188,6 @@ public class FilmControllerTests {
     @Test
     void shouldThrowExceptionBecauseOfNegativeDuration() {
         Film film = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
                         "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
@@ -216,7 +204,6 @@ public class FilmControllerTests {
     @Test
     void shouldCreateFilmWhenDurationEqualsOne() {
         Film film = Film.builder()
-                .id(1)
                 .name("Джентльмены")
                 .description("Один ушлый американец ещё со студенческих лет " +
                         "приторговывал наркотиками, а теперь придумал схему нелегального обогащения.")
