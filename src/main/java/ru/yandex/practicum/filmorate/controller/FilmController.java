@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
+@Slf4j
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
     private int id = 1;
@@ -27,20 +29,26 @@ public class FilmController {
     @PostMapping
     public Film create(@RequestBody Film film) {
         if (!isFilmValid(film)) {
+            log.warn("Ошибка при добавлении фильма, невалидные данные: {}", film);
             throw new FilmValidationException();
         }
         film.setId(id);
         films.put(id, film);
         id++;
+        log.info("Фильм {} (id={}) успешно создан", film.getName(), film.getId());
+        log.debug("Данные фильма: {}", film);
         return film;
     }
 
     @PutMapping
     public Film save(@RequestBody Film film) {
         if (!isFilmValid(film) || !films.containsKey(film.getId())) {
+            log.warn("Ошибка при обновлении фильма, невалидные данные: {}", film);
             throw new FilmValidationException();
         }
         films.put(film.getId(), film);
+        log.info("Данные фильма {} (id={}) успешно обновлены", film.getName(), film.getId());
+        log.debug("Данные фильма: {}", film);
         return film;
     }
 
