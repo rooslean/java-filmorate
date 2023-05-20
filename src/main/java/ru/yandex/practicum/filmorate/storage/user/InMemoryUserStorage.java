@@ -50,6 +50,10 @@ public class InMemoryUserStorage implements UserStorage {
         return new ArrayList<>(users.values());
     }
 
+    public User getUserById(int id) {
+        return users.get(id);
+    }
+
     private boolean isUserValid(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());

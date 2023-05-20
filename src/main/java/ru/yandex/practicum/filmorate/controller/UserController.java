@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -18,25 +19,25 @@ import java.util.List;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    InMemoryUserStorage inMemoryUserStorage;
+    UserStorage userStorage;
 
     @Autowired
-    public UserController(InMemoryUserStorage inMemoryUserStorage) {
-        this.inMemoryUserStorage = inMemoryUserStorage;
+    public UserController(InMemoryUserStorage userStorage) {
+        this.userStorage = userStorage;
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        return inMemoryUserStorage.create(user);
+        return userStorage.create(user);
     }
 
     @PutMapping
     public User save(@Valid @RequestBody User user) {
-        return inMemoryUserStorage.save(user);
+        return userStorage.save(user);
     }
 
     @GetMapping
     public List<User> getAll() {
-        return inMemoryUserStorage.getAll();
+        return userStorage.getAll();
     }
 }
