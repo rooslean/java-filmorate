@@ -42,4 +42,20 @@ public class FilmService {
                 .limit(count)
                 .collect(Collectors.toList());
     }
+
+    public Film create(Film film) {
+        return filmStorage.create(film);
+    }
+
+    public Film save(Film film) {
+        return filmStorage.save(film);
+    }
+
+    public List<Film> getAll() {
+        return filmStorage.getAll();
+    }
+
+    public Film getFilmById(int id) {
+        return filmStorage.getFilmById(id);
+    }
 }
