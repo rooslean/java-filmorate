@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -10,6 +11,7 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +29,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new FilmValidationException();
         }
         film.setId(id);
+        film.setLikes(new HashSet<>());
         films.put(id, film);
         id++;
         log.info("Фильм {} (id={}) успешно создан", film.getName(), film.getId());
@@ -39,6 +42,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.warn("Ошибка при обновлении фильма, невалидные данные: {}", film);
             throw new FilmValidationException();
         }
+//        film.setLikes(films.get(film.getId()).getLikes());
         films.put(film.getId(), film);
         log.info("Данные фильма {} (id={}) успешно обновлены", film.getName(), film.getId());
         log.debug("Данные фильма: {}", film);
@@ -47,6 +51,15 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     public List<Film> getAll() {
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public Film getFilmById(int id) {
+        if (films.get(id) == null) {
+            log.info(String.format("Фильм c id - %d не найден", id));
+            throw new FilmNotFoundException(id);
+        }
+        return films.get(id);
     }
 
     private boolean isFilmValid(Film film) {

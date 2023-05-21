@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -16,25 +16,25 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    InMemoryFilmStorage inMemoryFilmStorage;
+    FilmStorage filmStorage;
 
     @Autowired
-    public FilmController(InMemoryFilmStorage inMemoryFilmStorage) {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
+    public FilmController(FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        return inMemoryFilmStorage.create(film);
+        return filmStorage.create(film);
     }
 
     @PutMapping
     public Film save(@Valid @RequestBody Film film) {
-        return inMemoryFilmStorage.save(film);
+        return filmStorage.save(film);
     }
 
     @GetMapping
     public List<Film> getAll() {
-        return inMemoryFilmStorage.getAll();
+        return filmStorage.getAll();
     }
 }
