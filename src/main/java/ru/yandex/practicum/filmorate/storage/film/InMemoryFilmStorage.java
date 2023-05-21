@@ -39,7 +39,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (!isFilmValid(film)) {
             throw new FilmValidationException();
         }
-        film.setLikes(films.get(film.getId()).getLikes());
         films.put(film.getId(), film);
         log.info("Данные фильма {} (id={}) успешно обновлены", film.getName(), film.getId());
         return film;

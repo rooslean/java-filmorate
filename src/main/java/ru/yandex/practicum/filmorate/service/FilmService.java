@@ -49,6 +49,7 @@ public class FilmService {
     }
 
     public Film save(Film film) {
+        film.setLikes(filmStorage.getFilmById(film.getId()).getLikes());
         return filmStorage.save(film);
     }
 

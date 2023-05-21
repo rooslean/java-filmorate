@@ -57,6 +57,7 @@ public class UserService {
     }
 
     public User save(User user) {
+        user.setFriends(userStorage.getUserById(user.getId()).getFriends());
         return userStorage.save(user);
     }
 

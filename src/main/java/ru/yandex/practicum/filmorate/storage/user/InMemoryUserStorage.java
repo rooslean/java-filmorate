@@ -42,7 +42,6 @@ public class InMemoryUserStorage implements UserStorage {
             throw new UserValidationException(
                     String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей:%s", user));
         }
-        user.setFriends(users.get(user.getId()).getFriends());
         users.put(user.getId(), user);
         log.info("Данные пользователя {} (id={}) успешно обновлены", user.getLogin(), user.getId());
         return user;
