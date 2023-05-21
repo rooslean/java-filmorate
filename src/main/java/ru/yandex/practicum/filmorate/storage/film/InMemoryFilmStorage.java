@@ -9,10 +9,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -48,8 +47,8 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    public List<Film> getAll() {
-        return new ArrayList<>(films.values());
+    public Collection<Film> getAll() {
+        return films.values();
     }
 
     @Override

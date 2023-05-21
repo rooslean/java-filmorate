@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class UserService {
         return userStorage.save(user);
     }
 
-    public List<User> getAll() {
+    public Collection<User> getAll() {
         return userStorage.getAll();
     }
 

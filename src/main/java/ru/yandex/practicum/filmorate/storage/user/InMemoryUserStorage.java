@@ -8,10 +8,9 @@ import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -49,8 +48,8 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    public List<User> getAll() {
-        return new ArrayList<>(users.values());
+    public Collection<User> getAll() {
+        return users.values();
     }
 
     public User getUserById(int id) {

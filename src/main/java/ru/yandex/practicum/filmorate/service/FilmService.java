@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class FilmService {
         return filmStorage.save(film);
     }
 
-    public List<Film> getAll() {
+    public Collection<Film> getAll() {
         return filmStorage.getAll();
     }
 
