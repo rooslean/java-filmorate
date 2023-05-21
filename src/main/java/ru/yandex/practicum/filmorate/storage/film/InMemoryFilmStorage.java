@@ -2,12 +2,10 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,7 +20,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final int maxDescriptionLength = 200;
     private final LocalDate minFilmReleaseDate = LocalDate.of(1895, 12, 28);
 
-    public Film create(@Valid @RequestBody Film film) {
+    public Film create(Film film) {
         if (!isFilmValid(film)) {
             throw new FilmValidationException();
         }
@@ -34,7 +32,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    public Film save(@Valid @RequestBody Film film) {
+    public Film save(Film film) {
         if (!films.containsKey(film.getId())) {
             throw new FilmNotFoundException(film.getId());
         }
