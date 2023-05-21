@@ -80,6 +80,6 @@ public class FilmControllerTests {
                 FilmBadReleaseDateException.class,
                 () -> filmController.create(film));
 
-        assertEquals("Фильм содержит невалидные данные", exception.getMessage());
+        assertEquals("Дата релиза должна быть позже 1895-12-28", exception.getMessage());
     }
 }
