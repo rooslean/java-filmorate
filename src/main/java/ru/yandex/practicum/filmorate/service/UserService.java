@@ -50,4 +50,20 @@ public class UserService {
                 .map(id -> userStorage.getUserById(id))
                 .collect(Collectors.toList());
     }
+
+    public User create(User user) {
+        return userStorage.create(user);
+    }
+
+    public User save(User user) {
+        return userStorage.save(user);
+    }
+
+    public List<User> getAll() {
+        return userStorage.getAll();
+    }
+
+    public User getUserById(int id) {
+        return userStorage.getUserById(id);
+    }
 }
