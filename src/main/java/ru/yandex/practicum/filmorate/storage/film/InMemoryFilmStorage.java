@@ -25,7 +25,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     public Film create(@Valid @RequestBody Film film) {
         if (!isFilmValid(film)) {
-            log.warn("Ошибка при добавлении фильма, невалидные данные: {}", film);
             throw new FilmValidationException();
         }
         film.setId(id);
@@ -33,23 +32,19 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.put(id, film);
         id++;
         log.info("Фильм {} (id={}) успешно создан", film.getName(), film.getId());
-        log.debug("Данные фильма: {}", film);
         return film;
     }
 
     public Film save(@Valid @RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
-            log.info(String.format("Фильм c id - %d не найден", film.getId()));
             throw new FilmNotFoundException(film.getId());
         }
         if (!isFilmValid(film)) {
-            log.warn("Ошибка при обновлении фильма, невалидные данные: {}", film);
             throw new FilmValidationException();
         }
         film.setLikes(films.get(film.getId()).getLikes());
         films.put(film.getId(), film);
         log.info("Данные фильма {} (id={}) успешно обновлены", film.getName(), film.getId());
-        log.debug("Данные фильма: {}", film);
         return film;
     }
 
@@ -60,7 +55,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film getFilmById(int id) {
         if (films.get(id) == null) {
-            log.info(String.format("Фильм c id - %d не найден", id));
             throw new FilmNotFoundException(id);
         }
         return films.get(id);

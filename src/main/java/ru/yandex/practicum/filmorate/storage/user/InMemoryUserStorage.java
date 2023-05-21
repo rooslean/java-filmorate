@@ -22,7 +22,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     public User create(User user) {
         if (!isUserValid(user)) {
-            log.warn("Ошибка при добавлении пользователя, невалидные данные: {}", user);
             throw new UserValidationException(
                     String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей: %s", user));
         }
@@ -33,24 +32,20 @@ public class InMemoryUserStorage implements UserStorage {
         users.put(id, user);
         id++;
         log.info("Пользователь {} (id={}) успешно создан", user.getLogin(), user.getId());
-        log.debug("Данные пользователя: {}", user);
         return user;
     }
 
     public User save(User user) {
         if (!users.containsKey(user.getId())) {
-            log.info(String.format("Пользователь c id - %d не найден", user.getId()));
             throw new UserNotFoundException(user.getId());
         }
         if (!isUserValid(user)) {
-            log.warn("Ошибка при обновлении пользователя, невалидные данные: {}", user);
             throw new UserValidationException(
                     String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей:%s", user));
         }
         user.setFriends(users.get(user.getId()).getFriends());
         users.put(user.getId(), user);
         log.info("Данные пользователя {} (id={}) успешно обновлены", user.getLogin(), user.getId());
-        log.debug("Данные пользователя: {}", user);
         return user;
     }
 
@@ -60,7 +55,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     public User getUserById(int id) {
         if (users.get(id) == null) {
-            log.info(String.format("Пользователь c id - %d не найден", id));
             throw new UserNotFoundException(id);
         }
         return users.get(id);
