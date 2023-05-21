@@ -38,11 +38,15 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     public Film save(@Valid @RequestBody Film film) {
-        if (!isFilmValid(film) || !films.containsKey(film.getId())) {
+        if (!films.containsKey(film.getId())) {
+            log.info(String.format("Фильм c id - %d не найден", film.getId()));
+            throw new FilmNotFoundException(film.getId());
+        }
+        if (!isFilmValid(film)) {
             log.warn("Ошибка при обновлении фильма, невалидные данные: {}", film);
             throw new FilmValidationException();
         }
-//        film.setLikes(films.get(film.getId()).getLikes());
+        film.setLikes(films.get(film.getId()).getLikes());
         films.put(film.getId(), film);
         log.info("Данные фильма {} (id={}) успешно обновлены", film.getName(), film.getId());
         log.debug("Данные фильма: {}", film);

@@ -24,7 +24,6 @@ public class Film {
     @NotNull
     LocalDate releaseDate;
     @PositiveOrZero
-
     int duration;
     Set<Integer> likes;
 }
