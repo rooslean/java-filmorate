@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.exception;
 
-public class FilmValidationException extends RuntimeException {
-    public FilmValidationException() {
+public class FilmBadReleaseDateException extends RuntimeException {
+    public FilmBadReleaseDateException() {
         super("Фильм содержит невалидные данные");
     }
 
-    public FilmValidationException(String msg) {
+    public FilmBadReleaseDateException(String msg) {
         super(msg);
     }
 }

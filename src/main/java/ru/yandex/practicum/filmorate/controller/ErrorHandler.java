@@ -2,13 +2,13 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.FilmValidationException;
+import ru.yandex.practicum.filmorate.exception.FilmBadReleaseDateException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 @RestControllerAdvice
@@ -22,10 +22,16 @@ public class ErrorHandler {
         return new ErrorResponse("Объект не найден", e.getMessage());
     }
 
-    @ExceptionHandler({FilmValidationException.class, UserValidationException.class})
+    @ExceptionHandler({FilmBadReleaseDateException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationError(final RuntimeException e) {
-        log.warn("Ошибка при добавлении пользователя, невалидные данные: {}", e.getMessage());
+    public ErrorResponse handleFilmBadReleaseDateError(final RuntimeException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("Неверная дата", e.getMessage());
+    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationError(final MethodArgumentNotValidException e) {
+        log.warn(e.getMessage());
         return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
 

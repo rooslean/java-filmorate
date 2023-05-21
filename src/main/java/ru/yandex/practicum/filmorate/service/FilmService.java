@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.FilmBadReleaseDateException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 public class FilmService {
     FilmStorage filmStorage;
     UserStorage userStorage;
+    private final LocalDate minFilmReleaseDate = LocalDate.of(1895, 12, 28);
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
@@ -45,10 +48,16 @@ public class FilmService {
     }
 
     public Film create(Film film) {
+        if (!isFilmValid(film)) {
+            throw new FilmBadReleaseDateException(String.format("Дата релиза должна быть позже %s", minFilmReleaseDate));
+        }
         return filmStorage.create(film);
     }
 
     public Film save(Film film) {
+        if (!isFilmValid(film)) {
+            throw new FilmBadReleaseDateException(String.format("Дата релиза должна быть позже %s", minFilmReleaseDate));
+        }
         film.setLikes(filmStorage.getFilmById(film.getId()).getLikes());
         return filmStorage.save(film);
     }
@@ -59,5 +68,9 @@ public class FilmService {
 
     public Film getFilmById(int id) {
         return filmStorage.getFilmById(id);
+    }
+
+    private boolean isFilmValid(Film film) {
+        return film.getReleaseDate().isAfter(minFilmReleaseDate);
     }
 }

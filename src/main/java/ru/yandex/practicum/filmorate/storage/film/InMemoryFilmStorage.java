@@ -3,10 +3,8 @@ package ru.yandex.practicum.filmorate.storage.film;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,13 +15,8 @@ import java.util.Map;
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
     private int id = 1;
-    private final int maxDescriptionLength = 200;
-    private final LocalDate minFilmReleaseDate = LocalDate.of(1895, 12, 28);
 
     public Film create(Film film) {
-        if (!isFilmValid(film)) {
-            throw new FilmValidationException();
-        }
         film.setId(id);
         film.setLikes(new HashSet<>());
         films.put(id, film);
@@ -35,9 +28,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film save(Film film) {
         if (!films.containsKey(film.getId())) {
             throw new FilmNotFoundException(film.getId());
-        }
-        if (!isFilmValid(film)) {
-            throw new FilmValidationException();
         }
         films.put(film.getId(), film);
         log.info("Данные фильма {} (id={}) успешно обновлены", film.getName(), film.getId());
@@ -54,12 +44,5 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new FilmNotFoundException(id);
         }
         return films.get(id);
-    }
-
-    private boolean isFilmValid(Film film) {
-        return !film.getName().isEmpty()
-                && film.getDescription().length() < maxDescriptionLength
-                && film.getReleaseDate().isAfter(minFilmReleaseDate)
-                && film.getDuration() > 0;
     }
 }
