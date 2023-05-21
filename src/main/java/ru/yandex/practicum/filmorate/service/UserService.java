@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,7 +56,7 @@ public class UserService {
         userStorage.save(friend);
     }
 
-    public Set<Integer> getFriendsList(int userId) {
+    private Set<Integer> getFriendsSet(int userId) {
         User user = userStorage.getUserById(userId);
         if (user == null) {
             log.info(String.format("Пользователь c id - %d не найден", userId));
@@ -64,10 +65,24 @@ public class UserService {
         return user.getFriends();
     }
 
-    public List<User> getCommonFriendsList(int userId, int friendId) {
-        Set<Integer> userFriends = getFriendsList(userId);
-        Set<Integer> friendFriends = getFriendsList(friendId);
-        userFriends.removeIf(id -> !friendFriends.contains(id));
-        return userFriends.stream().map(id -> userStorage.getUserById(id)).collect(Collectors.toList());
+    public List<User> getFriendsList(int userId) {
+        User user = userStorage.getUserById(userId);
+        if (user == null) {
+            log.info(String.format("Пользователь c id - %d не найден", userId));
+            throw new UserNotFoundException(userId);
+        }
+        return user.getFriends().stream().map(id -> userStorage.getUserById(id)).collect(Collectors.toList());
+    }
+
+    public List<User> getCommonFriendsList(int userId, int otherId) {
+        Set<Integer> userFriends = getFriendsSet(userId);
+        Set<Integer> otherFriends = getFriendsSet(otherId);
+        if (userFriends == null) {
+            return new ArrayList<>();
+        }
+        return userFriends.stream()
+                .filter(otherFriends::contains)
+                .map(id -> userStorage.getUserById(id))
+                .collect(Collectors.toList());
     }
 }

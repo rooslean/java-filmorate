@@ -3,13 +3,14 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PutMapping;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,9 @@ public class InMemoryUserStorage implements UserStorage {
                     String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей: %s", user));
         }
         user.setId(id);
+        if (user.getFriends() == null) {
+            user.setFriends(new HashSet<>());
+        }
         users.put(id, user);
         id++;
         log.info("Пользователь {} (id={}) успешно создан", user.getLogin(), user.getId());
@@ -33,13 +37,17 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    @PutMapping
     public User save(User user) {
-        if (!isUserValid(user) || !users.containsKey(user.getId())) {
-            log.warn("Ошибка при обновлении фильма, невалидные данные: {}", user);
+        if (!users.containsKey(user.getId())) {
+            log.info(String.format("Пользователь c id - %d не найден", user.getId()));
+            throw new UserNotFoundException(user.getId());
+        }
+        if (!isUserValid(user)) {
+            log.warn("Ошибка при обновлении пользователя, невалидные данные: {}", user);
             throw new UserValidationException(
                     String.format("Пользователь содержит невалидные данные, проверьте корректность всех полей:%s", user));
         }
+        user.setFriends(users.get(user.getId()).getFriends());
         users.put(user.getId(), user);
         log.info("Данные пользователя {} (id={}) успешно обновлены", user.getLogin(), user.getId());
         log.debug("Данные пользователя: {}", user);
@@ -51,6 +59,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public User getUserById(int id) {
+        if (users.get(id) == null) {
+                log.info(String.format("Пользователь c id - %d не найден", id));
+                throw new UserNotFoundException(id);
+        }
         return users.get(id);
     }
 
