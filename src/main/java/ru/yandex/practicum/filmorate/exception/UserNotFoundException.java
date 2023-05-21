@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.exception;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException() {
-        super("Фильм содержит невалидные данные");
+        super("Пользователь содержит невалидные данные");
     }
 
     public UserNotFoundException(int id) {
