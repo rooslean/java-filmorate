@@ -60,6 +60,9 @@ public class UserService {
     }
 
     public User save(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
         user.setFriends(userStorage.getUserById(user.getId()).getFriends());
         return userStorage.save(user);
     }
