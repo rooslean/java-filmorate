@@ -1,6 +1,6 @@
 insert into GENRE (NAME)
 select *
-from VALUES ('Комедия'), ('Драма'), ('Мультфильм'), ('Триллер'), ('Документальный'), ('Боевик')
+from VALUES ('Хоррор'), ('Фантастика'), ('Комедия'), ('Триллер'), ('Документальный'), ('Боевик')
 WHERE C1 NOT IN (select NAME from GENRE);
 
 insert into MPA_RATING (NAME)
