@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -59,12 +58,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriendsList(@PathVariable int id) {
+    public Collection<User> getFriendsList(@PathVariable int id) {
         return userService.getFriendsList(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getFriendsCommonList(@PathVariable int id, @PathVariable int otherId) {
+    public Collection<User> getFriendsCommonList(@PathVariable int id, @PathVariable int otherId) {
         return userService.getCommonFriendsList(id, otherId);
     }
 }

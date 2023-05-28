@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.Email;
@@ -16,6 +17,7 @@ import java.util.Set;
 
 @Data
 @Builder
+@EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     int id;
@@ -27,7 +29,7 @@ public class User {
     @Past
     LocalDate birthday;
     @JsonIgnore
-    Set<Integer> friends;
+    Set<User> friends;
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();

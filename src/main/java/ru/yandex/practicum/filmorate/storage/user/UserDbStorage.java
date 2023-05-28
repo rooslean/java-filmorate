@@ -5,7 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.AlreadyFriendsException;
+import ru.yandex.practicum.filmorate.exception.FriendshipAcceptionException;
+import ru.yandex.practicum.filmorate.exception.FriendshipRequestAlreadyExist;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -41,12 +45,12 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "UPDATE user SET " +
                 "email = ?, login = ?, name = ? , birthday = ?" +
                 "where user_id = ?";
-        int result = jdbcTemplate.update(sqlQuery
-                , user.getEmail()
-                , user.getLogin()
-                , user.getName()
-                , user.getBirthday()
-                , user.getId());
+        int result = jdbcTemplate.update(sqlQuery,
+                user.getEmail(),
+                user.getLogin(),
+                user.getName(),
+                user.getBirthday(),
+                user.getId());
         if (result == 0) {
             throw new UserNotFoundException(user.getId());
         }
@@ -71,6 +75,85 @@ public class UserDbStorage implements UserStorage {
             throw new UserNotFoundException(id);
         }
         return user;
+    }
+
+    @Override
+    public void addFriend(int userId, int friendId) {
+        SqlRowSet friendRequest = findFriendRequest(userId, friendId);
+        if (friendRequest.next()) {
+            int followingUserId = friendRequest.getInt("following_user_id");
+            int followedUserId = friendRequest.getInt("followed_user_id");
+            int friendshipId = friendRequest.getInt("id");
+            boolean accepted = friendRequest.getBoolean("accepted");
+            if (accepted) {
+                throw new AlreadyFriendsException(followingUserId, followedUserId);
+            }
+            if (userId == followingUserId) {
+                throw new FriendshipRequestAlreadyExist(userId, friendId);
+            }
+            if (userId == followedUserId) {
+                String sqlQuery = "UPDATE friendship " +
+                        "SET accepted = ? " +
+                        "WHERE friendship_id = ?";
+                int result = jdbcTemplate.update(sqlQuery, true, friendshipId);
+                if (result == 0) {
+                    throw new FriendshipAcceptionException(userId, friendId);
+                }
+            }
+        } else {
+            String sqlQuery = "INSERT INTO friendship(following_user_id, followed_user_id) " +
+                    "VALUES(?, ?)";
+            jdbcTemplate.update(sqlQuery, userId, friendId);
+
+            log.info("Создан запрос дружбы между пользователями {} и {}", userId, friendId);
+        }
+    }
+
+    @Override
+    public void deleteFriend(int userId, int friendId) {
+        String sqlQuery = "DELETE FROM friendship " +
+                "WHERE following_user_id = ? " +
+                "AND followed_user_id = ? " +
+                "OR following_user_id = ? " +
+                "AND followed_user_id = ? ";
+        jdbcTemplate.update(sqlQuery, userId, friendId, friendId, userId);
+    }
+
+    @Override
+    public Collection<User> getFriendsList(int userId) {
+/*        String sqlQuery = "SELECT user_id, email, login, name, birthday " +
+                "FROM user" +
+                "WHERE user_id IN (SELECT followed_user_id " +
+                "FROM friendship " +
+                "WHERE following_user_id = ? " +
+                "AND accepted = ?)";*/
+        String sqlQuery = "SELECT user_id, email, login, name, birthday " +
+                "FROM user " +
+                "WHERE user_id IN (SELECT followed_user_id " +
+                "FROM friendship " +
+                "WHERE following_user_id = ? " +
+//                "AND accepted = ? " +
+                "UNION " +
+                "SELECT following_user_id " +
+                "FROM friendship " +
+                "WHERE followed_user_id = ? " +
+                "AND accepted = ?)";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId, userId, true);
+    }
+
+//    @Override
+//    public Collection<User> getCommonFriendsList(int userId, int otherId) {
+//        return null;
+//    }
+
+    private SqlRowSet findFriendRequest(int userId, int friendId) {
+        String sqlQuery = "SELECT * " +
+                "FROM friendship " +
+                "WHERE following_user_id = ? " +
+                "AND followed_user_id = ? " +
+                "OR following_user_id = ? " +
+                "AND followed_user_id = ? ";
+        return jdbcTemplate.queryForRowSet(sqlQuery, userId, friendId, friendId, userId);
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {

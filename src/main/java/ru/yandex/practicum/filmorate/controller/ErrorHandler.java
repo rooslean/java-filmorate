@@ -1,13 +1,17 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.practicum.filmorate.exception.AlreadyFriendsException;
 import ru.yandex.practicum.filmorate.exception.FilmBadReleaseDateException;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.FriendshipAcceptionException;
+import ru.yandex.practicum.filmorate.exception.FriendshipRequestAlreadyExist;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
@@ -20,6 +24,14 @@ public class ErrorHandler {
     public ErrorResponse handleObjectNotFound(final RuntimeException e) {
         log.info(e.getMessage());
         return new ErrorResponse("Объект не найден", e.getMessage());
+    }
+
+    @ExceptionHandler({AlreadyFriendsException.class, FriendshipAcceptionException.class,
+            FriendshipRequestAlreadyExist.class, DataIntegrityViolationException.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleFriendshipError(final RuntimeException e) {
+        log.info(e.getMessage());
+        return new ErrorResponse("Ошибка добавления в друзья", e.getMessage());
     }
 
     @ExceptionHandler({FilmBadReleaseDateException.class})
