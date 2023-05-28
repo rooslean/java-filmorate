@@ -3,14 +3,14 @@ select *
 from VALUES ('Хоррор'), ('Фантастика'), ('Комедия'), ('Триллер'), ('Документальный'), ('Боевик')
 WHERE C1 NOT IN (select NAME from GENRE);
 
-insert into MPA_RATING (NAME)
+insert into RATING (NAME)
 select *
 from VALUES ('G'),
   ('PG'),
   ('PG-13'),
   ('R'),
   ('NC-17')
-WHERE C1 NOT IN (select RATING_NAME from MPA_RATING);
+WHERE C1 NOT IN (select NAME from RATING);
 
 insert into FILM
 (NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATING_ID)
