@@ -10,21 +10,22 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-@Component
+@Component("InMemoryFilmStorage")
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
     private int id = 1;
 
+    @Override
     public Film create(Film film) {
         film.setId(id);
         film.setLikes(new HashSet<>());
         films.put(id, film);
         id++;
-        log.info("Фильм {} (id={}) успешно создан", film.getName(), film.getId());
         return film;
     }
 
+    @Override
     public Film save(Film film) {
         if (!films.containsKey(film.getId())) {
             throw new FilmNotFoundException(film.getId());
@@ -34,6 +35,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
+    @Override
     public Collection<Film> getAll() {
         return films.values();
     }

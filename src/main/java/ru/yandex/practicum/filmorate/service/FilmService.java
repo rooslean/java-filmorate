@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -14,13 +15,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class FilmService {
     FilmStorage filmStorage;
     UserStorage userStorage;
     private final LocalDate minFilmReleaseDate = LocalDate.of(1895, 12, 28);
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, @Qualifier("UserDbStorage") UserStorage userStorage) {
+    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage, @Qualifier("UserDbStorage") UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
@@ -52,7 +54,9 @@ public class FilmService {
         if (!isFilmValid(film)) {
             throw new FilmBadReleaseDateException(String.format("Дата релиза должна быть позже %s", minFilmReleaseDate));
         }
-        return filmStorage.create(film);
+        film = filmStorage.create(film);
+        log.info("Фильм {} (id={}) успешно создан", film.getName(), film.getId());
+        return film;
     }
 
     public Film save(Film film) {
