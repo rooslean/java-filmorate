@@ -8,7 +8,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.AlreadyFriendsException;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -82,7 +84,7 @@ public class FilmDbStorage implements FilmStorage {
                 "f.rating_id, " +
                 "r.name rating_name " +
                 "FROM film f " +
-                "JOIN rating r ON f.rating_id=r.rating_id";
+                "JOIN rating r ON f.rating_id = r.rating_id";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
     }
 
@@ -96,7 +98,7 @@ public class FilmDbStorage implements FilmStorage {
                 "f.rating_id, " +
                 "r.name rating_name " +
                 "FROM film f " +
-                "JOIN rating r ON f.rating_id=r.rating_id " +
+                "JOIN rating r ON f.rating_id = r.rating_id " +
                 "WHERE f.film_id = ?";
         Film film;
         try {
@@ -107,16 +109,51 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
-    private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-        return Film.builder()
-                .id(resultSet.getInt("film_id"))
-                .name(resultSet.getString("film_name"))
-                .description(resultSet.getString("description"))
-                .releaseDate(resultSet.getObject("release_date", LocalDate.class))
-                .duration(resultSet.getInt("duration"))
-                .mpa(new Rating(resultSet.getInt("rating_id"), resultSet.getString("rating_name")))
-                .genres(getGenresByFilmId(resultSet.getInt("film_id")))
-                .build();
+    @Override
+    public void addLike(int filmId, int userId) {
+        SqlRowSet likeRow = findLike(filmId, userId);
+        if (likeRow.next()) {
+            throw new AlreadyFriendsException();
+        } else {
+            String sqlQuery = "INSERT INTO likes(film_id, user_id) " +
+                    "VALUES(?, ?)";
+            jdbcTemplate.update(sqlQuery, filmId, userId);
+        }
+    }
+
+    private SqlRowSet findLike(int filmId, int userId) {
+        String sqlQuery = "SELECT * " +
+                "FROM likes " +
+                "WHERE film_id = ? " +
+                "AND user_id = ?";
+        return jdbcTemplate.queryForRowSet(sqlQuery, filmId, userId);
+    }
+
+    @Override
+    public void deleteLike(int filmId, int userId) {
+        String sqlQuery = "DELETE FROM likes " +
+                "WHERE film_id = ? " +
+                "AND user_id = ?";
+        jdbcTemplate.update(sqlQuery, userId, filmId);
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(int count) {
+        String sqlQuery = "SELECT f.film_id, " +
+                "f.name film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "f.rating_id, " +
+                "r.name rating_name, " +
+                "COUNT(l.film_id) likes " +
+                "FROM film f " +
+                "JOIN rating r ON f.rating_id = r.rating_id " +
+                "LEFT JOIN likes l ON f.film_id = l.film_id " +
+                "GROUP BY f.film_id " +
+                "ORDER BY likes DESC " +
+                "LIMIT ?";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
     }
 
     private Collection<Genre> getGenresByFilmId(int filmId) {
@@ -161,5 +198,17 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
 
+    }
+
+    private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
+        return Film.builder()
+                .id(resultSet.getInt("film_id"))
+                .name(resultSet.getString("film_name"))
+                .description(resultSet.getString("description"))
+                .releaseDate(resultSet.getObject("release_date", LocalDate.class))
+                .duration(resultSet.getInt("duration"))
+                .mpa(new Rating(resultSet.getInt("rating_id"), resultSet.getString("rating_name")))
+                .genres(getGenresByFilmId(resultSet.getInt("film_id")))
+                .build();
     }
 }

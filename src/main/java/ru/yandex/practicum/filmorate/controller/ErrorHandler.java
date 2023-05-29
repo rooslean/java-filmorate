@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.AlreadyFriendsException;
+import ru.yandex.practicum.filmorate.exception.AlreadyLikedException;
 import ru.yandex.practicum.filmorate.exception.FilmBadReleaseDateException;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FriendshipAcceptionException;
@@ -30,7 +31,7 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler({AlreadyFriendsException.class, FriendshipAcceptionException.class,
-            FriendshipRequestAlreadyExist.class, DataIntegrityViolationException.class})
+            FriendshipRequestAlreadyExist.class, DataIntegrityViolationException.class, AlreadyLikedException.class})
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFriendshipError(final RuntimeException e) {

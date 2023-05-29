@@ -11,8 +11,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -28,26 +26,17 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
-        Film film = filmStorage.getFilmById(filmId);
         userStorage.getUserById(userId);
-        film.getLikes().add(userId);
-        filmStorage.save(film);
+        filmStorage.addLike(filmId, userId);
     }
 
     public void deleteLike(int filmId, int userId) {
-        Film film = filmStorage.getFilmById(filmId);
         userStorage.getUserById(userId);
-        film.getLikes().remove(userId);
-        filmStorage.save(film);
+        filmStorage.deleteLike(filmId, userId);
     }
 
-    public List<Film> getPopularFilms(int count) {
-        return filmStorage
-                .getAll()
-                .stream()
-                .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toList());
+    public Collection<Film> getPopularFilms(int count) {
+        return filmStorage.getPopularFilms(count);
     }
 
     public Film create(Film film) {
