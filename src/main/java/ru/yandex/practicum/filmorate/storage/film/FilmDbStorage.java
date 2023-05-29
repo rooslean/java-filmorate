@@ -55,15 +55,30 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getAll() {
-        String sqlQuery = "SELECT film_id, name, description, release_date, duration, rating_id " +
-                "FROM film";
+        String sqlQuery = "SELECT f.film_id, " +
+                "f.name film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "f.rating_id, " +
+                "r.name rating_name " +
+                "FROM film f " +
+                "JOIN rating r ON f.rating_id=r.rating_id";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
     }
 
     @Override
     public Film getFilmById(int id) {
-        String sqlQuery = "SELECT film_id, name, description, release_date, duration, rating_id " +
-                "FROM film WHERE film_id = ?";
+        String sqlQuery = "SELECT f.film_id, " +
+                "f.name film_name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "f.rating_id, " +
+                "r.name rating_name " +
+                "FROM film f " +
+                "JOIN rating r ON f.rating_id=r.rating_id " +
+                "WHERE f.film_id = ?";
         Film film;
         try {
             film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
@@ -76,11 +91,11 @@ public class FilmDbStorage implements FilmStorage {
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         return Film.builder()
                 .id(resultSet.getInt("film_id"))
-                .name(resultSet.getString("name"))
+                .name(resultSet.getString("film_name"))
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getObject("release_date", LocalDate.class))
                 .duration(resultSet.getInt("duration"))
-                .mpa(new Rating(resultSet.getInt("rating_id"), null))
+                .mpa(new Rating(resultSet.getInt("rating_id"), resultSet.getString("rating_name")))
                 .build();
     }
 }

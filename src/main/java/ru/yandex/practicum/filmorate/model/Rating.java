@@ -13,6 +13,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Rating {
     int id;
-    @JsonIgnore
+
     String name;
 }
