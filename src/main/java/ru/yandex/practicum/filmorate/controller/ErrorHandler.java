@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.exception.FilmBadReleaseDateException;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FriendshipAcceptionException;
 import ru.yandex.practicum.filmorate.exception.FriendshipRequestAlreadyExist;
+import ru.yandex.practicum.filmorate.exception.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
@@ -19,7 +20,7 @@ import ru.yandex.practicum.filmorate.model.ErrorResponse;
 @Slf4j
 public class ErrorHandler {
 
-    @ExceptionHandler({FilmNotFoundException.class, UserNotFoundException.class})
+    @ExceptionHandler({FilmNotFoundException.class, UserNotFoundException.class, GenreNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleObjectNotFound(final RuntimeException e) {
         log.info(e.getMessage());
@@ -28,10 +29,11 @@ public class ErrorHandler {
 
     @ExceptionHandler({AlreadyFriendsException.class, FriendshipAcceptionException.class,
             FriendshipRequestAlreadyExist.class, DataIntegrityViolationException.class})
+
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleFriendshipError(final RuntimeException e) {
         log.info(e.getMessage());
-        return new ErrorResponse("Ошибка добавления в друзья", e.getMessage());
+        return new ErrorResponse("Ошибка добавления", e.getMessage());
     }
 
     @ExceptionHandler({FilmBadReleaseDateException.class})
@@ -51,6 +53,8 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(final Exception e) {
+        log.info("Ошибка сервера {}", e.getClass().getName());
+        e.printStackTrace();
         return new ErrorResponse("Ошибка сервера", e.getMessage());
     }
 }

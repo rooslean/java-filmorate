@@ -4,25 +4,34 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component("FilmDbStorage")
 @Slf4j
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedJdbcTemplate;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.namedJdbcTemplate = namedJdbcTemplate;
     }
 
     @Override
@@ -31,6 +40,10 @@ public class FilmDbStorage implements FilmStorage {
                 .withTableName("film")
                 .usingGeneratedKeyColumns("film_id");
         int id = simpleJdbcInsert.executeAndReturnKey(film.toMap()).intValue();
+
+        if (film.getGenres() != null) {
+            addGenresToFilm(id, film.getGenres().stream().map(Genre::getId).collect(Collectors.toList()));
+        }
         film.setId(id);
         return film;
     }
@@ -50,6 +63,12 @@ public class FilmDbStorage implements FilmStorage {
         if (result == 0) {
             throw new FilmNotFoundException(film.getId());
         }
+
+        if (film.getGenres() != null) {
+            Collection<Genre> genres = getGenresByFilmId(film.getId());
+            solveGenresAdd(film.getId(), genres, film.getGenres());
+        }
+        film.setGenres(getGenresByFilmId(film.getId()));
         return film;
     }
 
@@ -96,6 +115,51 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(resultSet.getObject("release_date", LocalDate.class))
                 .duration(resultSet.getInt("duration"))
                 .mpa(new Rating(resultSet.getInt("rating_id"), resultSet.getString("rating_name")))
+                .genres(getGenresByFilmId(resultSet.getInt("film_id")))
                 .build();
+    }
+
+    private Collection<Genre> getGenresByFilmId(int filmId) {
+        String sqlQuery = "SELECT genre_id, " +
+                "name " +
+                "FROM genre " +
+                "WHERE genre_id IN (SELECT genre_id " +
+                "FROM film_genre " +
+                "WHERE film_id = ?)";
+        return jdbcTemplate.query(sqlQuery, ((rs, rowNum) -> Genre.builder().id(rs.getInt("genre_id"))
+                .name(rs.getString("name"))
+                .build()), filmId);
+    }
+
+    private void solveGenresAdd(int filmId, Collection<Genre> oldGenres, Collection<Genre> newGenres) {
+        Set<Integer> oldGenresIds = oldGenres.stream().map(Genre::getId).collect(Collectors.toSet());
+        Set<Integer> newGenresIds = newGenres.stream().map(Genre::getId).collect(Collectors.toSet());
+        List<Integer> genresToAdd = newGenresIds.stream().filter(id -> !oldGenresIds.contains(id)).collect(Collectors.toList());
+        List<Integer> genresToDel = oldGenresIds.stream().filter(id -> !newGenresIds.contains(id)).collect(Collectors.toList());
+        addGenresToFilm(filmId, genresToAdd);
+        removeGenresFromFilm(filmId, genresToDel);
+    }
+
+    private void removeGenresFromFilm(int filmId, List<Integer> genresToDel) {
+        if (genresToDel.size() > 0) {
+            SqlParameterSource parameters = new MapSqlParameterSource()
+                    .addValue("film_id", filmId)
+                    .addValue("genre_ids", genresToDel);
+            String sqlQuery = "DELETE FROM film_genre " +
+                    "WHERE film_id = :film_id " +
+                    "AND genre_id IN (:genre_ids)";
+            namedJdbcTemplate.update(sqlQuery, parameters);
+        }
+    }
+
+    private void addGenresToFilm(int filmId, List<Integer> genresToAdd) {
+        if (genresToAdd.size() > 0) {
+            String sqlQuery = "INSERT INTO film_genre(film_id, genre_id)" +
+                    "VALUES(?, ?)";
+            for (Integer genreId : genresToAdd) {
+                jdbcTemplate.update(sqlQuery, filmId, genreId);
+            }
+        }
+
     }
 }

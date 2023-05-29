@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.exception;
 
 public class FilmNotFoundException extends RuntimeException {
     public FilmNotFoundException() {
-        super("Фильм содержит невалидные данные");
+        super("Фильм не найден");
     }
 
     public FilmNotFoundException(int id) {

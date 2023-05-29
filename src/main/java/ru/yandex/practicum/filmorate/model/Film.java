@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class Film {
     @PositiveOrZero
     int duration;
     Rating mpa;
-    Set<Genre> genres;
+    Collection<Genre> genres;
     Set<Integer> likes;
 
     public Map<String, Object> toMap() {
