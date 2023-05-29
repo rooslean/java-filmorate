@@ -24,14 +24,18 @@ public class UserService {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        return userStorage.create(user);
+        user = userStorage.create(user);
+        log.info("Пользователь с идентификатором {} и логином {} был создан", user.getId(), user.getLogin());
+        return user;
     }
 
     public User save(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        return userStorage.save(user);
+        user = userStorage.save(user);
+        log.info("Данные пользователя {} (id={}) успешно обновлены", user.getLogin(), user.getId());
+        return user;
     }
 
     public Collection<User> getAll() {
@@ -44,6 +48,7 @@ public class UserService {
 
     public void addFriend(int userId, int friendId) {
         userStorage.addFriend(userId, friendId);
+        log.info("Создан запрос дружбы между пользователями {} и {}", userId, friendId);
     }
 
     public void deleteFriend(int userId, int friendId) {

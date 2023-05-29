@@ -30,13 +30,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-//        String sqlQuery = "INSERT INTO user(email, login, name, birthday) values (?, ?, ?, ?);";
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("user")
                 .usingGeneratedKeyColumns("user_id");
         int id = simpleJdbcInsert.executeAndReturnKey(user.toMap()).intValue();
         user.setId(id);
-        log.info("Пользователь с идентификатором {} и логином {} был создан", id, user.getLogin());
         return user;
     }
 
@@ -54,7 +52,6 @@ public class UserDbStorage implements UserStorage {
         if (result == 0) {
             throw new UserNotFoundException(user.getId());
         }
-        log.info("Данные пользователя {} (id={}) успешно обновлены", user.getLogin(), user.getId());
         return user;
     }
 
@@ -104,8 +101,6 @@ public class UserDbStorage implements UserStorage {
             String sqlQuery = "INSERT INTO friendship(following_user_id, followed_user_id) " +
                     "VALUES(?, ?)";
             jdbcTemplate.update(sqlQuery, userId, friendId);
-
-            log.info("Создан запрос дружбы между пользователями {} и {}", userId, friendId);
         }
     }
 
@@ -121,18 +116,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> getFriendsList(int userId) {
-/*        String sqlQuery = "SELECT user_id, email, login, name, birthday " +
-                "FROM user" +
-                "WHERE user_id IN (SELECT followed_user_id " +
-                "FROM friendship " +
-                "WHERE following_user_id = ? " +
-                "AND accepted = ?)";*/
         String sqlQuery = "SELECT user_id, email, login, name, birthday " +
                 "FROM user " +
                 "WHERE user_id IN (SELECT followed_user_id " +
                 "FROM friendship " +
                 "WHERE following_user_id = ? " +
-//                "AND accepted = ? " +
                 "UNION " +
                 "SELECT following_user_id " +
                 "FROM friendship " +
@@ -140,11 +128,6 @@ public class UserDbStorage implements UserStorage {
                 "AND accepted = ?)";
         return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId, userId, true);
     }
-
-//    @Override
-//    public Collection<User> getCommonFriendsList(int userId, int otherId) {
-//        return null;
-//    }
 
     private SqlRowSet findFriendRequest(int userId, int friendId) {
         String sqlQuery = "SELECT * " +
