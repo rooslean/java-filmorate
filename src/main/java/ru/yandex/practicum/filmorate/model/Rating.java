@@ -1,11 +1,13 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @Builder
@@ -15,4 +17,11 @@ public class Rating {
     int id;
 
     String name;
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("rating_id", id);
+        values.put("name", name);
+        return values;
+    }
 }
