@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Rating;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,13 +38,14 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film save(Film film) {
         String sqlQuery = "UPDATE film SET " +
-                "name = ?, description = ?, release_date = ? , duration = ?" +
+                "name = ?, description = ?, release_date = ? , duration = ?, rating_id = ?" +
                 "where film_id = ?";
         int result = jdbcTemplate.update(sqlQuery,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
+                film.getMpa().getId(),
                 film.getId());
         if (result == 0) {
             throw new FilmNotFoundException(film.getId());
@@ -53,14 +55,14 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getAll() {
-        String sqlQuery = "SELECT film_id, name, description, release_date, duration " +
+        String sqlQuery = "SELECT film_id, name, description, release_date, duration, rating_id " +
                 "FROM film";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
     }
 
     @Override
     public Film getFilmById(int id) {
-        String sqlQuery = "SELECT film_id, name, description, release_date, duration " +
+        String sqlQuery = "SELECT film_id, name, description, release_date, duration, rating_id " +
                 "FROM film WHERE film_id = ?";
         Film film;
         try {
@@ -73,11 +75,12 @@ public class FilmDbStorage implements FilmStorage {
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         return Film.builder()
-                .id(resultSet.getInt("user_id"))
+                .id(resultSet.getInt("film_id"))
                 .name(resultSet.getString("name"))
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getObject("release_date", LocalDate.class))
                 .duration(resultSet.getInt("duration"))
+                .mpa(new Rating(resultSet.getInt("rating_id"), null))
                 .build();
     }
 }

@@ -27,6 +27,8 @@ public class Film {
     LocalDate releaseDate;
     @PositiveOrZero
     int duration;
+    Rating mpa;
+    Set<Genre> genres;
     Set<Integer> likes;
 
     public Map<String, Object> toMap() {
@@ -36,6 +38,7 @@ public class Film {
         values.put("description", description);
         values.put("release_date", releaseDate);
         values.put("duration", duration);
+        values.put("rating_id", mpa.getId());
         return values;
     }
 }
