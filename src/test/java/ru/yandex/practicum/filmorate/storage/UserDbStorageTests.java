@@ -50,7 +50,7 @@ public class UserDbStorageTests {
         User user = createUser();
         User friend = createUser();
         userDbStorage.addFriend(user.getId(), friend.getId());
-        Collection<User> friends = userDbStorage.getFriendsList(user.getId());
+        Collection<User> friends = userDbStorage.getFriendsList(user);
         assertThat(friends.stream()
                 .findFirst())
                 .isPresent()
@@ -58,7 +58,7 @@ public class UserDbStorageTests {
                         assertThat(u)
                                 .hasFieldOrPropertyWithValue("id", friend.getId()));
         userDbStorage.deleteFriend(user.getId(), friend.getId());
-        friends = userDbStorage.getFriendsList(user.getId());
+        friends = userDbStorage.getFriendsList(user);
         assertEquals(0, friends.size());
     }
 }
