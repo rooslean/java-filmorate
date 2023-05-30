@@ -146,11 +146,14 @@ public class FilmDbStorage implements FilmStorage {
                 "f.duration, " +
                 "f.rating_id, " +
                 "r.name rating_name, " +
-                "COUNT(l.film_id) likes " +
+                "l.likes likes " +
                 "FROM film f " +
                 "JOIN rating r ON f.rating_id = r.rating_id " +
-                "LEFT JOIN likes l ON f.film_id = l.film_id " +
-                "GROUP BY f.film_id " +
+                "LEFT JOIN (SELECT film_id, " +
+                            "COUNT(film_id) " +
+                            "likes " +
+                            "FROM likes " +
+                            "GROUP BY film_id) l ON f.film_id = l.film_id " +
                 "ORDER BY likes DESC " +
                 "LIMIT ?";
         return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
