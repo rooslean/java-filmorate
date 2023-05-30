@@ -115,7 +115,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Collection<User> getFriendsList(int userId) {
+    public Collection<User> getFriendsList(User user) {
         String sqlQuery = "SELECT user_id, email, login, name, birthday " +
                 "FROM user " +
                 "WHERE user_id IN (SELECT followed_user_id " +
@@ -126,7 +126,32 @@ public class UserDbStorage implements UserStorage {
                 "FROM friendship " +
                 "WHERE followed_user_id = ? " +
                 "AND accepted = ?)";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, userId, userId, true);
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, user.getId(), user.getId(), true);
+    }
+
+    @Override
+    public Collection<User> getCommonFriendsList(User user, User other) {
+        String sqlQuery = "SELECT user_id, email, login, name, birthday " +
+                "FROM user " +
+                "WHERE user_id IN (SELECT user_friends.user_id " +
+                "FROM (SELECT followed_user_id user_id " +
+                "FROM friendship " +
+                "WHERE following_user_id = ? " +
+                "UNION " +
+                "SELECT following_user_id " +
+                "FROM friendship " +
+                "WHERE followed_user_id = ? " +
+                "AND accepted = ?) user_friends JOIN (SELECT followed_user_id user_id " +
+                "FROM friendship " +
+                "WHERE following_user_id = ? " +
+                "UNION " +
+                "SELECT following_user_id " +
+                "FROM friendship " +
+                "WHERE followed_user_id = ? " +
+                "AND accepted = ?) other_friends ON user_friends.user_id=other_friends.user_id)";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser,
+                user.getId(), user.getId(), true, other.getId(), other.getId(), true);
+
     }
 
     private SqlRowSet findFriendRequest(int userId, int friendId) {

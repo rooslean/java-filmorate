@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component("InMemoryUserStorage")
 @Slf4j
@@ -70,9 +71,16 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Collection<User> getFriendsList(int userId) {
-        User user = getUserById(userId);
+    public Collection<User> getFriendsList(User user) {
         return user.getFriends();
     }
 
+    @Override
+    public Collection<User> getCommonFriendsList(User user, User other) {
+        Collection<User> userFriends = user.getFriends();
+        Collection<User> otherFriends = other.getFriends();
+        return userFriends.stream()
+                .filter(otherFriends::contains)
+                .collect(Collectors.toList());
+    }
 }
