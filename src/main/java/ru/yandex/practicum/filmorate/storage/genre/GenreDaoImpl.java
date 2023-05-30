@@ -13,11 +13,11 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 @Component
-public class GenreImpl implements GenreDao {
+public class GenreDaoImpl implements GenreDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public GenreImpl(JdbcTemplate jdbcTemplate) {
+    public GenreDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
