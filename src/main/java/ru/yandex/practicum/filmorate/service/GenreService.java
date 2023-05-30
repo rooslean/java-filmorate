@@ -12,7 +12,7 @@ import java.util.Collection;
 @Slf4j
 public class GenreService {
 
-    GenreDao genreDao;
+    private final GenreDao genreDao;
 
     @Autowired
     public GenreService(GenreDao genreDao) {

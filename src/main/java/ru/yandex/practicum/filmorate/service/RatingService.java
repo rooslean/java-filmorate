@@ -12,7 +12,7 @@ import java.util.Collection;
 @Slf4j
 public class RatingService {
 
-    RatingDao ratingDao;
+    private final RatingDao ratingDao;
 
     @Autowired
     public RatingService(RatingDao ratingDao) {
