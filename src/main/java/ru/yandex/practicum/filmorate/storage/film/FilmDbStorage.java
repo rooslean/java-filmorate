@@ -20,8 +20,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component("FilmDbStorage")
@@ -85,7 +89,9 @@ public class FilmDbStorage implements FilmStorage {
                 "r.name rating_name " +
                 "FROM film f " +
                 "JOIN rating r ON f.rating_id = r.rating_id";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
+        Collection<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
+        setGenresToFilms(films);
+        return films;
     }
 
     @Override
@@ -105,6 +111,9 @@ public class FilmDbStorage implements FilmStorage {
             film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
         } catch (EmptyResultDataAccessException e) {
             throw new FilmNotFoundException(id);
+        }
+        if (film != null) {
+            film.setGenres(getGenresByFilmId(film.getId()));
         }
         return film;
     }
@@ -150,13 +159,15 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM film f " +
                 "JOIN rating r ON f.rating_id = r.rating_id " +
                 "LEFT JOIN (SELECT film_id, " +
-                            "COUNT(film_id) " +
-                            "likes " +
-                            "FROM likes " +
-                            "GROUP BY film_id) l ON f.film_id = l.film_id " +
+                "COUNT(film_id) " +
+                "likes " +
+                "FROM likes " +
+                "GROUP BY film_id) l ON f.film_id = l.film_id " +
                 "ORDER BY likes DESC " +
                 "LIMIT ?";
-        return jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
+        Collection<Film> films = jdbcTemplate.query(sqlQuery, this::mapRowToFilm, count);
+        setGenresToFilms(films);
+        return films;
     }
 
     private Collection<Genre> getGenresByFilmId(int filmId) {
@@ -169,6 +180,29 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, ((rs, rowNum) -> Genre.builder().id(rs.getInt("genre_id"))
                 .name(rs.getString("name"))
                 .build()), filmId);
+    }
+
+    private void setGenresToFilms(Collection<Film> films) {
+        Map<Integer, Film> filmsMap = films.stream().collect(Collectors.toMap(Film::getId, Function.identity()));
+        SqlParameterSource parameters = new MapSqlParameterSource()
+                .addValue("films",
+                        filmsMap.keySet());
+        String sqlQuery = "SELECT f.film_id film_id, g.genre_id genre_id, g.name name " +
+                "FROM genre g " +
+                "JOIN film_genre f ON f.genre_id=g.genre_id " +
+                "WHERE f.film_id in (:films)";
+        SqlRowSet rowSet = namedJdbcTemplate.queryForRowSet(sqlQuery, parameters);
+        Map<Integer, Collection<Genre>> filmGenres = new HashMap<>();
+        while (rowSet.next()) {
+            Genre genre = Genre.builder().id(rowSet.getInt("genre_id"))
+                    .name(rowSet.getString("name"))
+                    .build();
+            int filmId = rowSet.getInt("film_id");
+            Collection<Genre> genres = filmGenres.getOrDefault(filmId, new HashSet<>());
+            genres.add(genre);
+            filmGenres.put(filmId, genres);
+        }
+        films.forEach(film -> film.setGenres(filmGenres.getOrDefault(film.getId(), new HashSet<>())));
     }
 
     private void solveGenresAdd(int filmId, Collection<Genre> oldGenres, Collection<Genre> newGenres) {
@@ -211,7 +245,6 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(resultSet.getObject("release_date", LocalDate.class))
                 .duration(resultSet.getInt("duration"))
                 .mpa(new Rating(resultSet.getInt("rating_id"), resultSet.getString("rating_name")))
-                .genres(getGenresByFilmId(resultSet.getInt("film_id")))
                 .build();
     }
 }
