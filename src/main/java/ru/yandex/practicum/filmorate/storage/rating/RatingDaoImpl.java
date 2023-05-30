@@ -13,11 +13,11 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 @Component
-public class RatingImpl implements RatingDao {
+public class RatingDaoImpl implements RatingDao {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public RatingImpl(JdbcTemplate jdbcTemplate) {
+    public RatingDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
