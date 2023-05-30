@@ -56,6 +56,7 @@ public class UserService {
     }
 
     public Collection<User> getFriendsList(int userId) {
+        userStorage.getUserById(userId);
         return userStorage.getFriendsList(userId);
     }
 
