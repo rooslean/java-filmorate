@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.service.RatingService;
 
+import javax.validation.Valid;
 import java.util.Collection;
 
 @RestController
@@ -24,7 +25,7 @@ public class RatingController {
     }
 
     @PostMapping
-    public Rating create(@RequestBody Rating genre) {
+    public Rating create(@Valid @RequestBody Rating genre) {
         return genreService.create(genre);
     }
 

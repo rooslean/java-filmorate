@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Rating {
     int id;
-
+    @NotBlank
     String name;
 
     public Map<String, Object> toMap() {
