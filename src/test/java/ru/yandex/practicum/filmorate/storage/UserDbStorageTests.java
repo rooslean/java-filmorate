@@ -21,11 +21,12 @@ public class UserDbStorageTests {
     private final UserDbStorage userDbStorage;
 
     User createUser() {
-        return userDbStorage.create(new User(0,
-                "test@mail.com",
-                "test",
-                "Test",
-                LocalDate.of(2000, 1, 1), null));
+        return userDbStorage.create(User.builder()
+                .email("test@mail.com")
+                .login("test")
+                .name("Test")
+                .birthday(LocalDate.of(2000, 1, 1))
+                .build());
     }
 
     @Test
