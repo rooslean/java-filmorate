@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenreService;
 
+import javax.validation.Valid;
 import java.util.Collection;
 
 @RestController
@@ -24,7 +25,7 @@ public class GenreController {
     }
 
     @PostMapping
-    public Genre create(@RequestBody Genre genre) {
+    public Genre create(@Valid @RequestBody Genre genre) {
         return genreService.create(genre);
     }
 
