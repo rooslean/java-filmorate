@@ -40,18 +40,14 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        if (!isFilmValid(film)) {
-            throw new FilmBadReleaseDateException(String.format("Дата релиза должна быть позже %s", minFilmReleaseDate));
-        }
+        validateFilm(film);
         film = filmStorage.create(film);
         log.info("Фильм {} (id={}) успешно создан", film.getName(), film.getId());
         return film;
     }
 
     public Film save(Film film) {
-        if (!isFilmValid(film)) {
-            throw new FilmBadReleaseDateException(String.format("Дата релиза должна быть позже %s", minFilmReleaseDate));
-        }
+        validateFilm(film);
         film.setLikes(filmStorage.getFilmById(film.getId()).getLikes());
         return filmStorage.save(film);
     }
@@ -64,7 +60,9 @@ public class FilmService {
         return filmStorage.getFilmById(id);
     }
 
-    private boolean isFilmValid(Film film) {
-        return film.getReleaseDate().isAfter(minFilmReleaseDate);
+    private void validateFilm(Film film) {
+        if (!film.getReleaseDate().isAfter(minFilmReleaseDate)) {
+            throw new FilmBadReleaseDateException(String.format("Дата релиза должна быть позже %s", minFilmReleaseDate));
+        }
     }
 }
