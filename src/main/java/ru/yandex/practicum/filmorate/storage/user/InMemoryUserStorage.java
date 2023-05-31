@@ -10,8 +10,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@Component
+@Component("InMemoryUserStorage")
 @Slf4j
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
@@ -32,6 +33,8 @@ public class InMemoryUserStorage implements UserStorage {
         if (!users.containsKey(user.getId())) {
             throw new UserNotFoundException(user.getId());
         }
+        //Сохранение списка друзей при обновлении
+        user.setFriends(getUserById(user.getId()).getFriends());
         users.put(user.getId(), user);
         log.info("Данные пользователя {} (id={}) успешно обновлены", user.getLogin(), user.getId());
         return user;
@@ -42,10 +45,42 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public User getUserById(int id) {
-        if (users.get(id) == null) {
-            throw new UserNotFoundException(id);
-        }
-        return users.get(id);
+        User user = users.get(id);
+        if (user == null) throw new UserNotFoundException(id);
+        return user;
     }
 
+    @Override
+    public void addFriend(int userId, int friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+        user.getFriends().add(user);
+        friend.getFriends().add(friend);
+        save(user);
+        save(friend);
+    }
+
+    @Override
+    public void deleteFriend(int userId, int friendId) {
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
+        user.getFriends().remove(user);
+        friend.getFriends().remove(user);
+        save(user);
+        save(friend);
+    }
+
+    @Override
+    public Collection<User> getFriendsList(User user) {
+        return user.getFriends();
+    }
+
+    @Override
+    public Collection<User> getCommonFriendsList(User user, User other) {
+        Collection<User> userFriends = user.getFriends();
+        Collection<User> otherFriends = other.getFriends();
+        return userFriends.stream()
+                .filter(otherFriends::contains)
+                .collect(Collectors.toList());
+    }
 }
