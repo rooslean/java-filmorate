@@ -27,7 +27,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleObjectNotFound(final RuntimeException e) {
         log.info(e.getMessage());
-        return new ErrorResponse("Объект не найден", e.getMessage());
+        return new ErrorResponse("Объект не был найден", e.getMessage());
     }
 
     @ExceptionHandler({AlreadyFriendsException.class, FriendshipAcceptionException.class,
